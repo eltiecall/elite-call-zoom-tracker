@@ -6,6 +6,7 @@ export type Stats = {
   missed: number
   rescheduled: number
   satPct: number
+  uniqueZooms: number
   uniqueSat: number
   uniqueClosed: number
   closeRate: number
@@ -49,6 +50,7 @@ export function computeStats(rows: ZoomEntry[]): Stats {
   })
 
   const av = Object.values(accts)
+  const uniqueZooms = av.length
   const uniqueSat = av.filter(a => a.sat).length
   const uniqueClosed = av.filter(a => a.closed).length
   const closeRate = uniqueSat > 0 ? (uniqueClosed / uniqueSat) * 100 : 0
@@ -61,7 +63,7 @@ export function computeStats(rows: ZoomEntry[]): Stats {
     if (r.outcome === 'Closed') closedRevenue += v
   })
 
-  return { total, sat, missed, rescheduled, satPct, uniqueSat, uniqueClosed, closeRate, pipeline, closedRevenue }
+  return { total, sat, missed, rescheduled, satPct, uniqueZooms, uniqueSat, uniqueClosed, closeRate, pipeline, closedRevenue }
 }
 
 export function computeRepStats(rows: ZoomEntry[]): RepStats[] {

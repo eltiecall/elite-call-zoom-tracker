@@ -28,6 +28,10 @@ export default function RepGrid({ repStats }: { repStats: RepStats[] }) {
             </div>
             <div className="rep-stats">
               <div className="rep-stat">
+                <div className="rep-stat-val">{r.uniqueZooms}</div>
+                <div className="rep-stat-lbl">Uniq Zooms</div>
+              </div>
+              <div className="rep-stat">
                 <div className="rep-stat-val">{r.uniqueSat}</div>
                 <div className="rep-stat-lbl">Uniq Sat</div>
               </div>

@@ -33,7 +33,7 @@ export default function ZoomModal({ entry, defaultMonth, months, onSave, onClose
     onSave(form)
   }
 
-  const allMonths = Array.from(new Set([...months, 'March 2025', 'April 2025'])).sort()
+  const allMonths = months.length > 0 ? [...months].sort() : [defaultMonth]
 
   return (
     <div className="modal-overlay" onClick={e => { if (e.target === e.currentTarget) onClose() }}>

@@ -17,6 +17,7 @@ type View = 'dashboard' | 'log' | 'pipeline' | 'trends'
 
 export default function Home() {
   const [allEntries, setAllEntries] = useState<ZoomEntry[]>([])
+  const [extraMonths, setExtraMonths] = useState<string[]>([])
   const [tab, setTab] = useState<Tab>('dashboard')
   const [view, setView] = useState<View>('dashboard')
   const [modalOpen, setModalOpen] = useState(false)
@@ -24,6 +25,13 @@ export default function Home() {
   const [seeding, setSeeding] = useState(false)
   const [loading, setLoading] = useState(true)
   const [liveCount, setLiveCount] = useState(0)
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('elite-call-months') || '[]')
+      if (Array.isArray(stored)) setExtraMonths(stored)
+    } catch {}
+  }, [])
 
   const fetchAll = useCallback(async () => {
     const { data, error } = await supabase
@@ -58,7 +66,7 @@ export default function Home() {
     setSeeding(false)
   }
 
-  const months = Array.from(new Set(allEntries.map(e => e.month))).sort()
+  const months = Array.from(new Set([...allEntries.map(e => e.month), ...extraMonths])).sort()
   const monthData: Record<string, ZoomEntry[]> = {}
   months.forEach(m => { monthData[m] = allEntries.filter(e => e.month === m) })
 
@@ -134,7 +142,14 @@ export default function Home() {
         ))}
         <button className="tab" onClick={() => {
           const name = prompt('New month name (e.g. "May 2025"):')
-          if (name?.trim()) setTab(name.trim())
+          if (name?.trim()) {
+            const trimmed = name.trim()
+            const updated = Array.from(new Set([...extraMonths, trimmed]))
+            setExtraMonths(updated)
+            try { localStorage.setItem('elite-call-months', JSON.stringify(updated)) } catch {}
+            setTab(trimmed)
+            setView('dashboard')
+          }
         }}>+ Month</button>
       </div>
 

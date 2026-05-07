@@ -212,7 +212,7 @@ body {
 }
 .rep-name { font-size: 14px; font-weight: 600; }
 .rep-sub { font-size: 11px; color: #888; }
-.rep-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+.rep-stats { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 6px; }
 .rep-stat { background: #f5f5f5; border-radius: 6px; padding: 8px; text-align: center; }
 @media (prefers-color-scheme: dark) {
   .rep-stat { background: #2a2a2a; }
