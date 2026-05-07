@@ -34,11 +34,10 @@ export default function Home() {
       const storedMonths = JSON.parse(localStorage.getItem('elite-call-months') || '[]')
       if (Array.isArray(storedMonths)) setExtraMonths(storedMonths)
     } catch {}
-  }, [])
-
-  const fetchReps = useCallback(async () => {
-    const { data } = await supabase.from('reps').select('name').order('name')
-    if (data && data.length > 0) setReps(data.map((r: { name: string }) => r.name))
+    try {
+      const storedReps = JSON.parse(localStorage.getItem('elite-call-reps') || 'null')
+      if (Array.isArray(storedReps) && storedReps.length > 0) setReps(storedReps)
+    } catch {}
   }, [])
 
   const fetchAll = useCallback(async () => {
@@ -54,23 +53,16 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    fetchReps()
     fetchAll()
+    // Real-time subscription
     const channel = supabase
-      .channel('tracker_changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'zoom_entries' }, fetchAll)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'reps' }, fetchReps)
+      .channel('zoom_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'zoom_entries' }, () => {
+        fetchAll()
+      })
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [fetchAll, fetchReps])
-
-  const addRep = async (name: string) => {
-    await supabase.from('reps').insert({ name })
-  }
-
-  const removeRep = async (name: string) => {
-    await supabase.from('reps').delete().eq('name', name)
-  }
+  }, [fetchAll])
 
   const seedDatabase = async () => {
     setSeeding(true)
@@ -253,8 +245,10 @@ export default function Home() {
       {manageRepsOpen && (
         <ManageRepsModal
           reps={reps}
-          onAdd={addRep}
-          onRemove={removeRep}
+          onSave={newReps => {
+            setReps(newReps)
+            try { localStorage.setItem('elite-call-reps', JSON.stringify(newReps)) } catch {}
+          }}
           onClose={() => setManageRepsOpen(false)}
         />
       )}

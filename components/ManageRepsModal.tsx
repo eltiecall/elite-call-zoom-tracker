@@ -5,31 +5,27 @@ import { getRepAvatarColors } from '@/lib/supabase'
 
 type Props = {
   reps: string[]
-  onAdd: (name: string) => Promise<void>
-  onRemove: (name: string) => Promise<void>
+  onSave: (reps: string[]) => void
   onClose: () => void
 }
 
-export default function ManageRepsModal({ reps, onAdd, onRemove, onClose }: Props) {
+export default function ManageRepsModal({ reps, onSave, onClose }: Props) {
+  const [list, setList] = useState<string[]>(reps)
   const [newRep, setNewRep] = useState('')
-  const [saving, setSaving] = useState(false)
 
-  const handleAdd = async () => {
+  const addRep = () => {
     const name = newRep.trim()
     if (!name) return
-    if (reps.map(r => r.toLowerCase()).includes(name.toLowerCase())) {
+    if (list.map(r => r.toLowerCase()).includes(name.toLowerCase())) {
       alert(`${name} is already on the team.`)
       return
     }
-    setSaving(true)
-    await onAdd(name)
+    setList(l => [...l, name])
     setNewRep('')
-    setSaving(false)
   }
 
-  const handleRemove = async (rep: string) => {
-    if (!confirm(`Remove ${rep}? Their existing zoom entries will be kept.`)) return
-    await onRemove(rep)
+  const removeRep = (rep: string) => {
+    setList(l => l.filter(r => r !== rep))
   }
 
   return (
@@ -43,7 +39,7 @@ export default function ManageRepsModal({ reps, onAdd, onRemove, onClose }: Prop
         <div style={{ marginBottom: 16 }}>
           <div className="form-label" style={{ marginBottom: 10 }}>Current Team</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {reps.map(rep => {
+            {list.map(rep => {
               const colors = getRepAvatarColors(rep)
               return (
                 <div key={rep} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 12px', background: '#f5f5f5', borderRadius: 8 }}>
@@ -54,14 +50,14 @@ export default function ManageRepsModal({ reps, onAdd, onRemove, onClose }: Prop
                     <span style={{ fontSize: 14, fontWeight: 500 }}>{rep}</span>
                   </div>
                   <button
-                    onClick={() => handleRemove(rep)}
+                    onClick={() => removeRep(rep)}
                     style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: 18, lineHeight: 1, padding: '0 4px' }}
                     title={`Remove ${rep}`}
                   >×</button>
                 </div>
               )
             })}
-            {reps.length === 0 && (
+            {list.length === 0 && (
               <div style={{ color: '#888', fontSize: 13, padding: '8px 0' }}>No reps — add one below.</div>
             )}
           </div>
@@ -74,23 +70,21 @@ export default function ManageRepsModal({ reps, onAdd, onRemove, onClose }: Prop
               className="form-input"
               value={newRep}
               onChange={e => setNewRep(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter') handleAdd() }}
+              onKeyDown={e => { if (e.key === 'Enter') addRep() }}
               placeholder="Rep name"
               style={{ flex: 1 }}
-              disabled={saving}
             />
-            <button className="btn primary" onClick={handleAdd} disabled={saving}>
-              {saving ? '...' : 'Add'}
-            </button>
+            <button className="btn primary" onClick={addRep}>Add</button>
           </div>
         </div>
 
         <div style={{ fontSize: 11, color: '#aaa', marginBottom: 20 }}>
-          Changes sync instantly to all browsers. Removing a rep keeps their existing zoom data.
+          Removing a rep hides them from new entries but keeps their existing zoom data.
         </div>
 
         <div className="form-actions">
-          <button className="btn primary" onClick={onClose}>Done</button>
+          <button className="btn" onClick={onClose}>Cancel</button>
+          <button className="btn primary" onClick={() => { onSave(list); onClose() }}>Save</button>
         </div>
       </div>
     </div>
