@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { RepStats, computeStats, getOutcomeColor } from '@/lib/stats'
-import { ZoomEntry, REP_COLORS } from '@/lib/supabase'
+import { ZoomEntry, getRepColor } from '@/lib/supabase'
 
 type Props = {
   repStats: RepStats[]
@@ -36,7 +36,7 @@ export default function Charts({ repStats, monthData, months, isDashboard, rows 
             datasets: [{
               label: 'Close Rate %',
               data: repStats.map(r => parseFloat(r.closeRate.toFixed(1))),
-              backgroundColor: repStats.map(r => REP_COLORS[r.rep] || '#888'),
+              backgroundColor: repStats.map(r => getRepColor(r.rep)),
               borderRadius: 4,
             }]
           },

@@ -1,8 +1,8 @@
 import { RepStats, crColor } from '@/lib/stats'
-import { REP_AVATAR_COLORS } from '@/lib/supabase'
+import { getRepAvatarColors } from '@/lib/supabase'
 
 function Avatar({ rep }: { rep: string }) {
-  const colors = REP_AVATAR_COLORS[rep] || { bg: '#e5e7eb', color: '#374151' }
+  const colors = getRepAvatarColors(rep)
   return (
     <div className="avatar" style={{ background: colors.bg, color: colors.color }}>
       {rep.slice(0, 2).toUpperCase()}

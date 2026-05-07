@@ -1,6 +1,5 @@
-import { ZoomEntry } from '@/lib/supabase'
+import { ZoomEntry, getRepAvatarColors } from '@/lib/supabase'
 import { parseDeal } from '@/lib/stats'
-import { REP_AVATAR_COLORS } from '@/lib/supabase'
 
 const OUTCOME_CLASSES: Record<string, string> = {
   'Closed': 'b-closed', 'Proposal Sent': 'b-proposal',
@@ -8,7 +7,7 @@ const OUTCOME_CLASSES: Record<string, string> = {
 }
 
 function Avatar({ rep }: { rep: string }) {
-  const colors = REP_AVATAR_COLORS[rep] || { bg: '#e5e7eb', color: '#374151' }
+  const colors = getRepAvatarColors(rep)
   return (
     <div style={{ width: 22, height: 22, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600, background: colors.bg, color: colors.color, flexShrink: 0 }}>
       {rep.slice(0, 2).toUpperCase()}

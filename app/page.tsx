@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { supabase, ZoomEntry } from '@/lib/supabase'
+import { supabase, ZoomEntry, REPS } from '@/lib/supabase'
 import { MARCH_DATA, APRIL_DATA } from '@/lib/seedData'
 import { computeStats, computeRepStats, generateTrends, TrendInsight } from '@/lib/stats'
 import MetricCards from '@/components/MetricCards'
@@ -11,6 +11,7 @@ import Pipeline from '@/components/Pipeline'
 import Charts from '@/components/Charts'
 import TrendsPanel from '@/components/TrendsPanel'
 import ZoomModal from '@/components/ZoomModal'
+import ManageRepsModal from '@/components/ManageRepsModal'
 
 type Tab = 'dashboard' | string
 type View = 'dashboard' | 'log' | 'pipeline' | 'trends'
@@ -18,6 +19,8 @@ type View = 'dashboard' | 'log' | 'pipeline' | 'trends'
 export default function Home() {
   const [allEntries, setAllEntries] = useState<ZoomEntry[]>([])
   const [extraMonths, setExtraMonths] = useState<string[]>([])
+  const [reps, setReps] = useState<string[]>(REPS)
+  const [manageRepsOpen, setManageRepsOpen] = useState(false)
   const [tab, setTab] = useState<Tab>('dashboard')
   const [view, setView] = useState<View>('dashboard')
   const [modalOpen, setModalOpen] = useState(false)
@@ -28,8 +31,12 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const stored = JSON.parse(localStorage.getItem('elite-call-months') || '[]')
-      if (Array.isArray(stored)) setExtraMonths(stored)
+      const storedMonths = JSON.parse(localStorage.getItem('elite-call-months') || '[]')
+      if (Array.isArray(storedMonths)) setExtraMonths(storedMonths)
+    } catch {}
+    try {
+      const storedReps = JSON.parse(localStorage.getItem('elite-call-reps') || 'null')
+      if (Array.isArray(storedReps) && storedReps.length > 0) setReps(storedReps)
     } catch {}
   }, [])
 
@@ -126,6 +133,7 @@ export default function Home() {
             <div className="pulse-dot" />
             Live
           </div>
+          <button className="btn" onClick={() => setManageRepsOpen(true)}>Manage Reps</button>
           <button className="btn primary" onClick={openAdd}>+ Add Zoom</button>
         </div>
       </div>
@@ -229,8 +237,19 @@ export default function Home() {
           entry={editEntry}
           defaultMonth={tab === 'dashboard' ? (months[months.length - 1] || 'April 2025') : tab}
           months={months}
+          reps={reps}
           onSave={handleSave}
           onClose={() => { setModalOpen(false); setEditEntry(null) }}
+        />
+      )}
+      {manageRepsOpen && (
+        <ManageRepsModal
+          reps={reps}
+          onSave={newReps => {
+            setReps(newReps)
+            try { localStorage.setItem('elite-call-reps', JSON.stringify(newReps)) } catch {}
+          }}
+          onClose={() => setManageRepsOpen(false)}
         />
       )}
     </div>

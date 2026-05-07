@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ZoomEntry } from '@/lib/supabase'
-import { REP_AVATAR_COLORS } from '@/lib/supabase'
+import { ZoomEntry, getRepAvatarColors } from '@/lib/supabase'
 
 const OUTCOME_CLASSES: Record<string, string> = {
   'Closed': 'b-closed',
@@ -16,7 +15,7 @@ const OUTCOME_CLASSES: Record<string, string> = {
 const SAT_COLORS: Record<string, string> = { Sat: '#22c55e', Missed: '#ef4444', Rescheduled: '#9ca3af' }
 
 function Avatar({ rep }: { rep: string }) {
-  const colors = REP_AVATAR_COLORS[rep] || { bg: '#e5e7eb', color: '#374151' }
+  const colors = getRepAvatarColors(rep)
   return (
     <div style={{ width: 24, height: 24, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 600, background: colors.bg, color: colors.color, flexShrink: 0 }}>
       {rep.slice(0, 2).toUpperCase()}

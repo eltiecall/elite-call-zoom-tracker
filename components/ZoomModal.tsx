@@ -1,23 +1,24 @@
 'use client'
 
 import { useState } from 'react'
-import { ZoomEntry, REPS, ZOOM_TYPES, SAT_OPTIONS, OUTCOMES } from '@/lib/supabase'
+import { ZoomEntry, ZOOM_TYPES, SAT_OPTIONS, OUTCOMES } from '@/lib/supabase'
 
 type Props = {
   entry: ZoomEntry | null
   defaultMonth: string
   months: string[]
+  reps: string[]
   onSave: (entry: Omit<ZoomEntry, 'created_at'>) => void
   onClose: () => void
 }
 
-export default function ZoomModal({ entry, defaultMonth, months, onSave, onClose }: Props) {
+export default function ZoomModal({ entry, defaultMonth, months, reps, onSave, onClose }: Props) {
   const isEdit = !!entry
   const [form, setForm] = useState({
     id: entry?.id || crypto.randomUUID(),
     month: entry?.month || defaultMonth,
     date: entry?.date || '',
-    rep: entry?.rep || 'Travis',
+    rep: entry?.rep || reps[0] || '',
     company: entry?.company || '',
     zoom_type: entry?.zoom_type || '1st Zoom',
     sat: entry?.sat || 'Sat',
@@ -60,7 +61,7 @@ export default function ZoomModal({ entry, defaultMonth, months, onSave, onClose
           <div className="form-group">
             <label className="form-label">Rep</label>
             <select className="form-select" value={form.rep} onChange={e => set('rep', e.target.value)}>
-              {REPS.map(r => <option key={r} value={r}>{r}</option>)}
+              {reps.map(r => <option key={r} value={r}>{r}</option>)}
             </select>
           </div>
           <div className="form-group">

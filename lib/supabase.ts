@@ -43,3 +43,27 @@ export const REP_AVATAR_COLORS: Record<string, { bg: string; color: string }> = 
   Tim: { bg: '#fee2e2', color: '#991b1b' },
   Andrew: { bg: '#e0f2fe', color: '#075985' },
 }
+
+const COLOR_PALETTE = ['#3b82f6','#22c55e','#ec4899','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316','#14b8a6','#a855f7','#84cc16','#e11d48']
+const AVATAR_PALETTE: { bg: string; color: string }[] = [
+  { bg: '#dbeafe', color: '#1e40af' }, { bg: '#dcfce7', color: '#166534' },
+  { bg: '#fce7f3', color: '#9d174d' }, { bg: '#fef3c7', color: '#92400e' },
+  { bg: '#ede9fe', color: '#4c1d95' }, { bg: '#fee2e2', color: '#991b1b' },
+  { bg: '#e0f2fe', color: '#075985' }, { bg: '#ffedd5', color: '#9a3412' },
+  { bg: '#ccfbf1', color: '#115e59' }, { bg: '#f3e8ff', color: '#6b21a8' },
+  { bg: '#ecfccb', color: '#365314' }, { bg: '#ffe4e6', color: '#9f1239' },
+]
+
+function hashStr(s: string): number {
+  let h = 0
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) & 0xffff
+  return h
+}
+
+export function getRepColor(rep: string): string {
+  return REP_COLORS[rep] ?? COLOR_PALETTE[hashStr(rep) % COLOR_PALETTE.length]
+}
+
+export function getRepAvatarColors(rep: string): { bg: string; color: string } {
+  return REP_AVATAR_COLORS[rep] ?? AVATAR_PALETTE[hashStr(rep) % AVATAR_PALETTE.length]
+}
