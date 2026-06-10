@@ -29,16 +29,14 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [liveCount, setLiveCount] = useState(0)
 
-  useEffect(() => {
-    try {
-      const storedMonths = JSON.parse(localStorage.getItem('elite-call-months') || '[]')
-      if (Array.isArray(storedMonths)) setExtraMonths(storedMonths)
-    } catch {}
-  }, [])
-
   const fetchReps = useCallback(async () => {
     const { data } = await supabase.from('reps').select('name').order('name')
     if (data && data.length > 0) setReps(data.map((r: { name: string }) => r.name))
+  }, [])
+
+  const fetchMonths = useCallback(async () => {
+    const { data } = await supabase.from('months').select('name').order('name')
+    if (data) setExtraMonths(data.map((m: { name: string }) => m.name))
   }, [])
 
   const fetchAll = useCallback(async () => {
@@ -55,14 +53,16 @@ export default function Home() {
 
   useEffect(() => {
     fetchReps()
+    fetchMonths()
     fetchAll()
     const channel = supabase
       .channel('tracker_changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'zoom_entries' }, fetchAll)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reps' }, fetchReps)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'months' }, fetchMonths)
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [fetchAll, fetchReps])
+  }, [fetchAll, fetchReps, fetchMonths])
 
   const addRep = async (name: string) => {
     await supabase.from('reps').insert({ name })
@@ -156,13 +156,11 @@ export default function Home() {
             {m}
           </button>
         ))}
-        <button className="tab" onClick={() => {
+        <button className="tab" onClick={async () => {
           const name = prompt('New month name (e.g. "May 2025"):')
           if (name?.trim()) {
             const trimmed = name.trim()
-            const updated = Array.from(new Set([...extraMonths, trimmed]))
-            setExtraMonths(updated)
-            try { localStorage.setItem('elite-call-months', JSON.stringify(updated)) } catch {}
+            await supabase.from('months').insert({ name: trimmed })
             setTab(trimmed)
             setView('dashboard')
           }
