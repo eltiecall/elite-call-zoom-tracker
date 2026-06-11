@@ -81,7 +81,12 @@ export default function Home() {
     setSeeding(false)
   }
 
-  const months = Array.from(new Set([...allEntries.map(e => e.month), ...extraMonths])).sort()
+  const MONTH_ORDER: Record<string, number> = { January:1,February:2,March:3,April:4,May:5,June:6,July:7,August:8,September:9,October:10,November:11,December:12 }
+  const sortMonths = (a: string, b: string) => {
+    const parse = (m: string) => { const p = m.split(' '); return (p.length > 1 ? parseInt(p[p.length-1]) : 9999) * 100 + (MONTH_ORDER[p[0]] || 0) }
+    return parse(a) - parse(b)
+  }
+  const months = Array.from(new Set([...allEntries.map(e => e.month), ...extraMonths])).sort(sortMonths)
   const monthData: Record<string, ZoomEntry[]> = {}
   months.forEach(m => { monthData[m] = allEntries.filter(e => e.month === m) })
 
